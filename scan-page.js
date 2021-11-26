@@ -9,6 +9,7 @@
 window.infos = window.infos || {};
 
 function scan() {
+	findLatestDiviVersion();
 	findLatestPfdVersion();
 	findLatestDapVersion();
 
@@ -17,12 +18,10 @@ function scan() {
 	sendMessage('jquery');
 
 	sendMessage('dap_active');
-	sendMessage('dap_version');
-	sendMessage('dap_is_pro');
-
 	sendMessage('pfd_active');
+
+	sendMessage('dap_version');
 	sendMessage('pfd_version');
-	sendMessage('pfd_is_pro');
 
 	sendMessage('areas');
 }
@@ -149,6 +148,32 @@ function findLatestDapVersion() {
 				infos.latest_dap_version = data.stable_version;
 			} else {
 				infos.latest_dap_version = '';
+			}
+
+			refreshOverview();
+		});
+}
+
+function findLatestDiviVersion() {
+	if ('undefined' !== typeof infos.latest_divi_version) {
+		return;
+	}
+
+	fetch('https://license.divimode.com', {
+		method: 'POST',
+		cors: 'no-cors',
+		referrerPolicy: 'no-referrer',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+		},
+		body: 'edd_action=get_divi_version'
+	})
+		.then(response => response.json())
+		.then(data => {
+			if (data && data.version) {
+				infos.latest_divi_version = data.version;
+			} else {
+				infos.latest_divi_version = '';
 			}
 
 			refreshOverview();

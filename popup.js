@@ -24,20 +24,20 @@ function updateOverview(data) {
 	showValue('general', 'theme', 'Theme', themeLabel.join(' '));
 	showValue('general', 'jquery', 'jQuery', data.jquery);
 
-	if (data.theme) {
+	if (data.theme && data.latest_divi_version) {
 		const isDivi = 'Divi' === data.theme || 'Extra' === data.theme;
 
-		if (data.theme_version) {
-			const minVersion = '4.4.0';
-			isOkay(
-				'general',
-				'theme',
-				isDivi && -1 !== compareVersion(data.theme_version, minVersion),
-				`Should be ${minVersion} or higher`
-			);
-		} else {
-			isOkay('general', 'theme', isDivi);
-		}
+		isOkay(
+			'general',
+			'theme',
+			isDivi &&
+			(!data.theme_version || -1 !== compareVersion(
+				data.theme_version,
+				data.latest_divi_version,
+				-1
+			)),
+			`Latest version is ${data.latest_divi_version}`
+		);
 	}
 
 	if (data.jquery) {
@@ -53,7 +53,7 @@ function updateOverview(data) {
 	if (infoPfd.active) {
 		addList('pfd', 'Popups for Divi');
 		showValue('pfd', 'pfd_version', 'Version', data.pfd_version);
-		showValue('pfd', 'pfd_is_pro', 'Type', 'Free');
+		showValue('pfd', 'pfd_is_pro', 'Type', 'Free plugin');
 		showAreas('pfd', data.areas);
 
 		if (data.latest_pfd_version) {
@@ -75,7 +75,7 @@ function updateOverview(data) {
 			data.dap_version,
 			'https://www.elegantthemes.com/marketplace/index.php/wp-json/api/v1/changelog/product_id/1707/'
 		);
-		showValue('dap', 'dap_is_pro', 'Type', 'Pro');
+		showValue('dap', 'dap_is_pro', 'Type', 'Premium plugin');
 		showAreas('dap', data.areas);
 
 		if (data.latest_dap_version) {
@@ -106,13 +106,13 @@ function showAreas(group, areas) {
 		const isPro = -1 !== item.ids[0].indexOf('divi-area-');
 		const postId = isPro ? item.ids[0].replace(/^divi-area-/, '') : '';
 		const name = isPro ? item.ids[1].replace(/^divi-area-/, '') : item.ids[0];
+		const type = isPro ? `Divi Area ${item.type}` : 'On-Page Popup';
 
 		const line = [];
 		line.push(`<div class="divi-area source-${isPro ? 'pro' : 'free'}">`);
-		line.push(`<span class="area-type">${item.type}</span>`);
-		line.push(`<span class="area-source">${isPro ? 'Divi Area' : 'On-Page'}</span>`);
+		line.push(`<span class="area-type">${type}</span>`);
 		if (isPro) {
-			line.push(`<span class="area-id">Area ${postId}</span>`);
+			line.push(`<span class="area-id"><small>Post-ID</small> ${postId}</span>`);
 		}
 		line.push(`<span class="area-name">#${name}</span>`);
 		line.push(`</div>`);
@@ -147,10 +147,6 @@ function addList(id, label) {
 }
 
 function showValue(listId, id, label, value, readMore) {
-	if ('undefined' === typeof value) {
-		return;
-	}
-
 	let item = document.querySelector(`#results ul.list-${listId} .item-${id}`);
 
 	if (!item) {
@@ -163,6 +159,12 @@ function showValue(listId, id, label, value, readMore) {
 
 	item.querySelector('.label').innerHTML = label;
 	item.querySelector('.value').innerHTML = value;
+
+	if ('undefined' === typeof value) {
+		item.style.display = 'none';
+	} else {
+		item.style.display = '';
+	}
 }
 
 function isOkay(listId, itemId, okay, message) {
@@ -177,6 +179,7 @@ function isOkay(listId, itemId, okay, message) {
 	if (null !== okay && 'undefined' !== typeof okay) {
 		item.classList.add(okay ? 'item-passed' : 'item-failed');
 	}
+
 	if (!okay && message) {
 		item.setAttribute('data-message', message);
 	} else {
@@ -198,9 +201,10 @@ function getPluginStats(prefix, data) {
 	return stats;
 }
 
-function compareVersion(version1, version2) {
+function compareVersion(version1, version2, backwardsMinor) {
 	const parts1 = version1.split('.');
 	const parts2 = version2.split('.');
+	backwardsMinor = isNaN(backwardsMinor) ? 0 : backwardsMinor;
 
 	while (parts1.length < parts2.length) {
 		parts1.push('0');
@@ -208,7 +212,7 @@ function compareVersion(version1, version2) {
 
 	for (let i = 0; i <= parts1.length; i++) {
 		const val1 = parseInt(parts1[i]);
-		const val2 = parseInt(parts2[i] || '0');
+		const val2 = parseInt(parts2[i] || '0') + (1 === i ? backwardsMinor : 0);
 
 		if (val1 < val2) {
 			return -1;

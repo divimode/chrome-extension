@@ -7,7 +7,7 @@ body {
 	font-size: 15px;
 	font-weight: 400;
 	background: #fff;
-	width: 280px;
+	width: 300px;
 }
 
 #results {
@@ -45,6 +45,7 @@ body {
 	text-align: center;
 	line-height: 17px;
 	margin-right: 4px;
+	vertical-align: top;
 }
 
 #results .list .item.item-passed:before {
@@ -67,6 +68,13 @@ body {
 #results .list-label {
 	display: block;
 	padding: 4px 0;
+}
+
+#results .label,
+#results .value {
+	display: inline-block;
+	line-height: 17px;
+	vertical-align: top;
 }
 
 #results .label {
@@ -155,36 +163,22 @@ body {
 	background: #781D2C10;
 }
 
-#results .divi-area .area-type,
-#results .divi-area .area-source {
+#results .divi-area .area-type {
 	color: #333C;
 	font-size: 12px;
 	text-transform: uppercase;
 }
 
-#results .divi-area .area-type {
-	margin-right: 6px;
-}
-
-#results .divi-area .area-type:after {
-	content: '|';
-	margin-left: 12px;
-}
-
-#results .divi-area .area-source {
-	margin-left: 6px;
-}
-
-#results .divi-area.source-free .area-source {
+#results .divi-area.source-free .area-type {
 	color: #7900DB;
 }
 
-#results .divi-area.source-pro .area-source {
+#results .divi-area.source-pro .area-type {
 	color: #781D2C;
 }
 
 #results .divi-area .area-id,
 #results .divi-area .area-name {
 	flex: 0 0 100%;
-	padding: 2px 0;
+	padding: 2px 0 2px 12px;
 }

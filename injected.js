@@ -64,10 +64,6 @@ window.addEventListener('message', ({data}) => {
 			respond(dap ? dap.version : '');
 			break;
 
-		case 'dap_is_pro':
-			respond(dap ? dap.isPro : false);
-			break;
-
 		case 'areas':
 			respond(dap || pfd ? listAreas() : []);
 			break;
@@ -78,10 +74,6 @@ window.addEventListener('message', ({data}) => {
 
 		case 'pfd_version':
 			respond(pfd ? pfd.version : '');
-			break;
-
-		case 'pfd_is_pro':
-			respond(pfd ? pfd.isPro : false);
 			break;
 
 		case 'origin':
