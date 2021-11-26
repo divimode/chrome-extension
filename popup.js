@@ -33,8 +33,7 @@ function updateOverview(data) {
 			isDivi &&
 			(!data.theme_version || -1 !== compareVersion(
 				data.theme_version,
-				data.latest_divi_version,
-				-1
+				data.latest_divi_version
 			)),
 			`Latest version is ${data.latest_divi_version}`
 		);
@@ -201,10 +200,9 @@ function getPluginStats(prefix, data) {
 	return stats;
 }
 
-function compareVersion(version1, version2, backwardsMinor) {
+function compareVersion(version1, version2) {
 	const parts1 = version1.split('.');
 	const parts2 = version2.split('.');
-	backwardsMinor = isNaN(backwardsMinor) ? 0 : backwardsMinor;
 
 	while (parts1.length < parts2.length) {
 		parts1.push('0');
@@ -212,7 +210,7 @@ function compareVersion(version1, version2, backwardsMinor) {
 
 	for (let i = 0; i <= parts1.length; i++) {
 		const val1 = parseInt(parts1[i]);
-		const val2 = parseInt(parts2[i] || '0') + (1 === i ? backwardsMinor : 0);
+		const val2 = parseInt(parts2[i] || '0');
 
 		if (val1 < val2) {
 			return -1;
