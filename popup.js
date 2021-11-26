@@ -25,18 +25,24 @@ function updateOverview(data) {
 	showValue('general', 'jquery', 'jQuery', data.jquery);
 
 	if (data.theme && data.latest_divi_version) {
-		const isDivi = 'Divi' === data.theme || 'Extra' === data.theme;
-
-		isOkay(
-			'general',
-			'theme',
-			isDivi &&
-			(!data.theme_version || -1 !== compareVersion(
-				data.theme_version,
-				data.latest_divi_version
-			)),
-			`Latest version is ${data.latest_divi_version}`
-		);
+		if ('Divi' === data.theme || 'Extra' === data.theme) {
+			isOkay(
+				'general',
+				'theme',
+				(!data.theme_version || -1 !== compareVersion(
+					data.theme_version,
+					data.latest_divi_version
+				)),
+				`Latest version is ${data.latest_divi_version}`
+			);
+		} else {
+			isOkay(
+				'general',
+				'theme',
+				false,
+				`Check, if the Divi Builder Plugin is active`
+			);
+		}
 	}
 
 	if (data.jquery) {
