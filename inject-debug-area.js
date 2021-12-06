@@ -108,7 +108,7 @@ function showChoice(title) {
 	$menu.append('<li data-action="elements">Structure</li>');
 	$menu.append('<li data-action="screenshot">Screenshot</li>');
 
-	if (area.hasClass('dm-debug-elements')) {
+	if (area.getWrap().hasClass('dm-debug-elements')) {
 		showElements();
 	} else {
 		hideElements();
@@ -213,7 +213,7 @@ function processChoice(event) {
 }
 
 function toggleElements() {
-	if (area.hasClass('dm-debug-elements')) {
+	if (area.getWrap().hasClass('dm-debug-elements')) {
 		hideElements();
 	} else {
 		if (!area.isVisible()) {
@@ -225,12 +225,12 @@ function toggleElements() {
 }
 
 function showElements() {
-	area.addClass('dm-debug-elements');
+	area.getWrap().addClass('dm-debug-elements');
 	$menu.find('[data-action="elements"]').text('Hide Structure');
 }
 
 function hideElements() {
-	area.removeClass('dm-debug-elements');
+	area.getWrap().removeClass('dm-debug-elements');
 	$menu.find('[data-action="elements"]').text('Explain Structure');
 }
 
