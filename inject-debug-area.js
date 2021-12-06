@@ -105,8 +105,14 @@ function showChoice(title) {
 
 	$menu.append('<li data-action="show">Show Area</li>');
 	$menu.append('<li data-action="hide">Hide Area</li>');
-	$menu.append('<li data-action="elements">Explain Structure</li>');
+	$menu.append('<li data-action="elements">Structure</li>');
 	$menu.append('<li data-action="screenshot">Screenshot</li>');
+
+	if (area.hasClass('dm-debug-elements')) {
+		showElements();
+	} else {
+		hideElements();
+	}
 
 	if (DiviArea.isClosed(area)) {
 		$menu.append('<li data-action="keep-closed">Reset "Keep Closed"</li>');
@@ -207,28 +213,24 @@ function processChoice(event) {
 }
 
 function toggleElements() {
-	if (true === area._elements) {
+	if (area.hasClass('dm-debug-elements')) {
 		hideElements();
 	} else {
+		if (!area.isVisible()) {
+			area.show();
+		}
+
 		showElements();
 	}
 }
 
 function showElements() {
-	area._elements = true;
 	area.addClass('dm-debug-elements');
-
-	if (!area.isVisible()) {
-		area.show();
-	}
 	$menu.find('[data-action="elements"]').text('Hide Structure');
 }
 
 function hideElements() {
 	area.removeClass('dm-debug-elements');
-	delete area._elements;
-
-	jQuery(window).off('.dmdebug');
 	$menu.find('[data-action="elements"]').text('Explain Structure');
 }
 
@@ -260,7 +262,7 @@ function takeScreenshot() {
 
 		sendDebugResponse('screenshot', data);
 
-		$menu.show();
+		setTimeout(() => $menu.show(), 50);
 	};
 
 	$menu.hide();
