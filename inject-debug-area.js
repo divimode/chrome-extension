@@ -7,15 +7,20 @@ let $menu;
 let area;
 let isMinimized = false;
 let areaId;
+let areaName;
+let debugMenuActive = false;
+let prefix = '[Divimode Debug]';
 
 function init() {
 	$menu = null;
 	area = null;
 	isMinimized = false;
+	debugMenuActive = false;
 	areaId = null;
 
-	window.removeEventListener('message', handleDebugMessage);
 	window.addEventListener('message', handleDebugMessage);
+
+	DiviArea.addAction('show_area', selectArea);
 }
 
 function handleDebugMessage({data}) {
@@ -23,22 +28,56 @@ function handleDebugMessage({data}) {
 		return;
 	}
 
-	if (area) {
-		hideChoice();
-	}
+	areaId = '';
+	debugMenuActive = true;
+	selectArea(DiviArea.getArea(data.areaId));
+}
 
-	areaId = data.areaId;
-
-	console.log('[Divimode Debug] Area ID', areaId);
-
-	area = DiviArea.getArea(areaId);
-
-	if (!area) {
-		console.error('[Divimode Debug] Area not found');
+function selectArea(newArea) {
+	if (!newArea) {
+		console.error(prefix, 'Area not found');
 		return;
 	}
 
-	showChoice(areaId);
+	let title;
+
+	if (newArea.theId() !== areaId) {
+		area = newArea;
+		window.area = newArea;
+		areaId = area.theId();
+
+		console.log('');
+		console.group(prefix, 'Area Details');
+		console.log('ID        ', area.theId());
+
+		area.getNames().forEach(fullName => {
+			const name = fullName.replace(/^divi-area-/, '');
+			console.log('          ', `#${name}`);
+
+			if (!title && name) {
+				title = `#${name}`;
+			}
+		});
+		console.log('Type      ', newArea.theType());
+		console.log(
+			'Closed?   ',
+			DiviArea.isClosed(newArea)
+				? 'Marked as "Keep Closed"'
+				: 'Area is not marked as "Keep Closed"'
+		);
+		console.groupEnd();
+
+		explainTriggers();
+		console.log("\n ", '-'.repeat(100), "\n ");
+
+		if (!title) {
+			title = area.theId();
+		}
+	}
+
+	if (debugMenuActive) {
+		showChoice(title);
+	}
 }
 
 function sendDebugResponse(action, data) {
@@ -51,23 +90,49 @@ function sendDebugResponse(action, data) {
 	window.postMessage(message, '*');
 }
 
-function showChoice(areaId) {
-	const $body = jQuery('body');
-	$menu = jQuery('<ul id="dm-support-debug-choice"></ul>');
+function showChoice(title) {
+	if (!$menu) {
+		$menu = jQuery('<ul id="dm-support-debug-choice"></ul>');
+		$menu.append('<li class="title"></li>');
+	}
 
-	$menu.append('<li class="title"></li>');
+	if (title) {
+		areaName = title;
+		$menu.find('.title').text(title);
+	}
+
+	$menu.find('[data-action]').remove();
+
 	$menu.append('<li data-action="show">Show Area</li>');
 	$menu.append('<li data-action="hide">Hide Area</li>');
 	$menu.append('<li data-action="elements">Explain Structure</li>');
 	$menu.append('<li data-action="screenshot">Screenshot</li>');
-	$menu.append('<li data-action="close">Close</li>');
 
-	$menu.find('.title').text(`#${areaId}`);
+	if (DiviArea.isClosed(area)) {
+		$menu.append('<li data-action="keep-closed">Reset "Keep Closed"</li>');
+	}
+
+	$menu.append('<li data-action="close">Close</li>');
+	$menu.appendTo('body');
 
 	maximizeChoice();
 	addChoiceHandlers();
 
-	$body.append($menu);
+	// Enable Divi Areas Debugger.
+	if ('undefined' === typeof DiviAreaConfig._debug) {
+		DiviAreaConfig._debug = DiviAreaConfig.debug;
+	}
+	DiviAreaConfig.debug = 1;
+}
+
+function hideChoice() {
+	debugMenuActive = false;
+	hideElements();
+	$menu.detach();
+
+	// Reset Divi Areas Debugger.
+	DiviAreaConfig.debug = DiviAreaConfig._debug;
+	delete DiviAreaConfig._debug;
 }
 
 function addChoiceHandlers() {
@@ -82,11 +147,9 @@ function addChoiceHandlers() {
 }
 
 function removeChoiceHandlers() {
-	if ($menu) {
-		$menu.off('click', '[data-action]', processChoice);
-		$menu.off('click', '.title', minimizeChoice);
-		$menu.off('click', maximizeChoice);
-	}
+	$menu.off('click', '[data-action]', processChoice);
+	$menu.off('click', '.title', minimizeChoice);
+	$menu.off('click', maximizeChoice);
 }
 
 function minimizeChoice() {
@@ -133,19 +196,13 @@ function processChoice(event) {
 			toggleElements();
 			break;
 
+		case 'keep-closed':
+			removeKeepClosed();
+			break;
+
 		case 'screenshot':
 			takeScreenshot();
 			break;
-	}
-}
-
-function hideChoice() {
-	hideElements();
-	removeChoiceHandlers();
-
-	if ($menu) {
-		$menu.remove();
-		$menu = null;
 	}
 }
 
@@ -164,6 +221,7 @@ function showElements() {
 	if (!area.isVisible()) {
 		area.show();
 	}
+	$menu.find('[data-action="elements"]').text('Hide Structure');
 }
 
 function hideElements() {
@@ -171,6 +229,7 @@ function hideElements() {
 	delete area._elements;
 
 	jQuery(window).off('.dmdebug');
+	$menu.find('[data-action="elements"]').text('Explain Structure');
 }
 
 function takeScreenshot() {
@@ -184,7 +243,7 @@ function takeScreenshot() {
 			width: elementBox.width,
 			height: elementBox.height,
 			devicePixelRatio: window.devicePixelRatio,
-			name: areaId
+			name: areaName.replace('#', '')
 		};
 
 		if ('fixed' !== position) {
@@ -211,6 +270,62 @@ function takeScreenshot() {
 		setTimeout(capture, area.getData('animationspeedin') + 50);
 	} else {
 		setTimeout(capture, 50);
+	}
+}
+
+function removeKeepClosed() {
+	// Remove the "Keep Closed" flag.
+	DiviArea.markClosed(area, -1);
+
+	$menu.find('[data-action="keep-closed"]').remove();
+}
+
+function explainTriggers() {
+	const triggers = area.getTrigger();
+
+	const dumpList = (label, list) => {
+		console.log(label, list.shift());
+
+		list.forEach(item => {
+			console.log('          ', item);
+		});
+	};
+
+	for (let key in triggers) {
+		const trigger = triggers[key];
+		const args = trigger.getArgs();
+
+		console.group(prefix, `Trigger "${trigger.id}"`);
+		console.log('Type      ', trigger.type);
+		console.log('Status    ', trigger.isActive() ? 'Active' : 'Inactive');
+		console.log('Behavior  ', args.once ? 'Fires only once' : 'Can fire multiple times');
+
+		switch (trigger.type) {
+			case 'click':
+			case 'hover':
+				dumpList('Selector  ', args.selector);
+				break;
+
+			case 'delay':
+			case 'inactive':
+				console.log('Delay     ', args.delay, 'milliseconds');
+				break;
+
+			case 'scroll':
+				console.log('Distance  ', args.distance, 'px |', args.percent, '%');
+				break;
+
+			case 'hash':
+				dumpList('Hash      ', args.hashes);
+				break;
+
+			case 'exit':
+			case 'focus':
+			case 'back':
+				break;
+		}
+
+		console.groupEnd();
 	}
 }
 

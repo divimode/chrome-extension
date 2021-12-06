@@ -59,6 +59,23 @@
 	background: #444;
 }
 
+#dm-support-debug-choice > [data-action="keep-closed"] {
+	padding-left: 30px;
+}
+
+#dm-support-debug-choice > [data-action="keep-closed"]:before {
+	content: '';
+	position: absolute;
+	left: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 16px;
+	height: 16px;
+	border-radius: 32px;
+	background: #781D2C;
+	box-shadow: 0 0 0 1px #fff inset;
+}
+
 #dm-support-debug-choice > li.title {
 	cursor: w-resize;
 	color: #222;
