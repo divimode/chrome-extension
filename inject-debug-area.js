@@ -262,16 +262,16 @@ function takeScreenshot() {
 
 		sendDebugResponse('screenshot', data);
 
-		setTimeout(() => $menu.show(), 50);
+		setTimeout(() => $menu.show(), 100);
 	};
 
 	$menu.hide();
 
 	if (!area.isVisible()) {
 		area.show();
-		setTimeout(capture, area.getData('animationspeedin') + 50);
+		setTimeout(capture, area.getData('animationspeedin') + 100);
 	} else {
-		setTimeout(capture, 50);
+		setTimeout(capture, 100);
 	}
 }
 

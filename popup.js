@@ -143,9 +143,11 @@ function showAreas(group, areas) {
 
 	if (listItem) {
 		setTimeout(() => {
-			listItem
-				.querySelector('[data-area-key]')
-				.addEventListener('click', onAreaClick);
+			const items = listItem.querySelectorAll('[data-area-key]');
+
+			items.forEach(item => {
+				item.addEventListener('click', onAreaClick);
+			});
 		}, 50);
 	}
 }
