@@ -5,11 +5,15 @@ const queryCurrentTab = {
 	currentWindow: true
 };
 
-chrome.runtime.onMessage.addListener((request) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	switch (request.cmd) {
 		case 'scanPage':
 			loadContentScript();
-			break;
+			return true;
+
+		case 'screenshot':
+			takeScreenshot(sendResponse);
+			return true;
 	}
 });
 
@@ -22,7 +26,16 @@ function loadContentScript() {
 
 		chrome.scripting.executeScript({
 			target: {tabId: tabs[0].id},
-			files: ['scan-page.js']
+			files: [
+				'script-inject.js',
+				'script-scan-page.js',
+				'script-debug-area.js'
+			]
 		});
 	});
+}
+
+function takeScreenshot(sendResponse) {
+	chrome.tabs.captureVisibleTab({format: 'png'})
+		.then(sendResponse);
 }

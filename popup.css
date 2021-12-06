@@ -3,7 +3,7 @@
 }
 
 body {
-	font-family: 'AcherusGrotesque', Helvetica, Arial, Lucida, sans-serif;
+	font-family: 'AcherusGrotesque', 'Open Sans', Helvetica, Arial, Lucida, sans-serif;
 	font-size: 15px;
 	font-weight: 400;
 	background: #fff;
@@ -132,7 +132,7 @@ body {
 	font-weight: 400;
 	border-radius: 10px;
 	transition: all 0.2s;
-	cursor: default;
+	cursor: pointer;
 	position: relative;
 	color: #333;
 }
@@ -155,12 +155,14 @@ body {
 #results .divi-area.source-free:focus,
 #results .divi-area.source-free:active {
 	background: #7900DB10;
+	box-shadow: 0 0 0 2px #7900DB;
 }
 
 #results .divi-area.source-pro:hover,
 #results .divi-area.source-pro:focus,
 #results .divi-area.source-pro:active {
 	background: #781D2C10;
+	box-shadow: 0 0 0 2px #781D2C;
 }
 
 #results .divi-area .area-type {

@@ -1,0 +1,107 @@
+#dm-support-debug-choice {
+	position: fixed;
+	z-index: 999999999999999;
+	background: #FFF;
+	left: 10px;
+	top: 10px;
+	box-shadow: 0 5px 50px -10px #0003;
+	list-style: none;
+	min-width: 15px;
+	border-radius: 20px;
+	padding: 10px;
+	margin: 0;
+	font-family: 'AcherusGrotesque', 'Open Sans', Helvetica, Arial, Lucida, sans-serif;
+	font-size: 15px;
+	font-weight: 400;
+	transition: all 0.3s;
+}
+
+.dm-debug-choice-hidden #dm-support-debug-choice {
+	transform: translateX(-100%);
+	cursor: e-resize !important;
+}
+
+.dm-debug-choice-hidden #dm-support-debug-choice:hover {
+	left: 24px;
+}
+
+.dm-debug-choice-hidden #dm-support-debug-choice > li {
+	pointer-events: none!important;
+}
+
+#dm-support-debug-choice > [data-action] {
+	position: relative;
+	padding: 4px 8px;
+	margin: 0 0 2px;
+	text-align: center;
+	cursor: pointer;
+	border-radius: 10px;
+	color: #6200ea;
+	transition: all 0.3s;
+}
+
+#dm-support-debug-choice > [data-action]:last-child {
+	margin-bottom: 0;
+}
+
+#dm-support-debug-choice > [data-action="close"] {
+	background: #f0f0f0;
+	color: #222;
+}
+
+#dm-support-debug-choice > [data-action]:hover {
+	color: #fff;
+	background: #6200ea;
+}
+
+#dm-support-debug-choice > li.title {
+	cursor: w-resize;
+	color: #222;
+	font-weight: bold;
+	background: #EEE;
+	padding: 10px 15px;
+	margin: -10px -10px 10px;
+	font-size: 14px;
+	border-radius: 10px 10px 0 0;
+}
+
+#et-boc .divi-area-wrap.dm-debug-elements {
+	border: 4px solid #781D2C !important;
+	box-shadow: 0 0 120px 0 #781D2CB0 inset !important;
+}
+
+#et-boc .divi-area-wrap.dm-debug-elements:before {
+	content: 'Area';
+	position: absolute;
+	background: #781D2C;
+	color: #fff;
+	padding: 0 8px;
+	font-size: 12px;
+	line-height: 24px;
+	font-weight: 600;
+	text-transform: uppercase;
+	border-radius: 3px 3px 0 0 !important;
+	left: 0;
+	top: 0;
+	transform: translateY(-100%);
+}
+
+#et-boc .divi-area-wrap.dm-debug-elements .et_pb_section {
+	border: 2px solid #2b87da !important;
+	box-shadow: 0 0 90px 0 #2b87daa0 inset !important;
+}
+
+#et-boc .divi-area-wrap.dm-debug-elements .et_pb_row {
+	border: 2px solid #29c4a9 !important;
+	box-shadow: 0 0 60px 0 #29c4a990 inset !important;
+}
+
+#et-boc .divi-area-wrap.dm-debug-elements .et_pb_column {
+	border: 1px solid #a2b0c1 !important;
+	box-shadow: 0 0 60px 0 #a2b0c130 inset !important;
+}
+
+#et-boc .divi-area-wrap.dm-debug-elements .et_pb_module {
+	border: 2px solid #4c5866 !important;
+	box-shadow: 0 0 30px 0 #4c586660 inset !important;
+}

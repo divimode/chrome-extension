@@ -6,59 +6,42 @@
  * twice on that page.
  */
 
+window.dmHandlers = window.dmHandlers || {};
 window.infos = window.infos || {};
 
-function scan() {
+function initScanner() {
+	window.addEventListener('message', handleScanMessage);
+
 	findLatestDiviVersion();
 	findLatestPfdVersion();
 	findLatestDapVersion();
 
-	sendMessage('origin');
-	sendMessage('theme');
-	sendMessage('jquery');
+	sendSupportRequest('origin');
+	sendSupportRequest('theme');
+	sendSupportRequest('jquery');
 
-	sendMessage('dap_active');
-	sendMessage('pfd_active');
+	sendSupportRequest('dap_active');
+	sendSupportRequest('pfd_active');
 
-	sendMessage('dap_version');
-	sendMessage('pfd_version');
+	sendSupportRequest('dap_version');
+	sendSupportRequest('pfd_version');
 
-	sendMessage('areas');
-}
+	sendSupportRequest('areas');
 
-function injectScripts(onDone) {
-	const scripts = ['injected.js', 'global-search.js'];
-	let isDone = false;
+	// Clean up when script is loaded a second time.
+	const myId = +(new Date);
+	window.dmHandlers.scanPage = myId;
 
-	scripts.forEach(script => {
-		const scriptId = `_divimode_support_script_${script}`;
-
-		if (document.getElementById(scriptId)) {
-			isDone = true;
-		} else {
-			const el = document.createElement('script');
-			el.src = chrome.runtime.getURL(script);
-			el.setAttribute('id', scriptId);
-
-			if (onDone) {
-				const callback = onDone;
-				el.onload = () => setTimeout(callback, 100);
-				onDone = null;
-			}
-
-			(document.head || document.documentElement).appendChild(el);
+	const tmr = setInterval(() => {
+		if (window.dmHandlers.scanPage !== myId) {
+			window.removeEventListener('message', handleScanMessage);
+			clearInterval(tmr);
 		}
-	});
 
-	if (isDone) {
-		onDone();
-	}
-
-	window.removeEventListener('message', handleMessage);
-	window.addEventListener('message', handleMessage);
+	}, 250);
 }
 
-function handleMessage({data}) {
+function handleScanMessage({data}) {
 	if ('dm_support_response' !== data.type) {
 		return;
 	}
@@ -72,7 +55,7 @@ function handleMessage({data}) {
 	refreshOverview();
 }
 
-function sendMessage(command) {
+function sendSupportRequest(command) {
 	window.postMessage({
 		type: 'dm_support_request',
 		cmd: command
@@ -180,4 +163,4 @@ function findLatestDiviVersion() {
 		});
 }
 
-injectScripts(scan);
+setTimeout(initScanner, 100);

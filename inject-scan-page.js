@@ -8,7 +8,7 @@ window.addEventListener('message', ({data}) => {
 		return;
 	}
 
-	const respond = value => {
+	const sendSupportResponse = value => {
 		window.postMessage({
 			type: 'dm_support_response',
 			response: data.cmd,
@@ -43,41 +43,41 @@ window.addEventListener('message', ({data}) => {
 
 	switch (data.cmd) {
 		case 'jquery':
-			respond(window.jQuery ? jQuery.fn.jquery : '');
+			sendSupportResponse(window.jQuery ? jQuery.fn.jquery : '');
 			break;
 
 		case 'theme':
 			if (window.DIVI) {
-				respond('Divi');
+				sendSupportResponse('Divi');
 			} else if (window.EXTRA) {
-				respond('Extra');
+				sendSupportResponse('Extra');
 			} else {
-				respond('Unknown');
+				sendSupportResponse('Unknown');
 			}
 			break;
 
 		case 'dap_active':
-			respond(!!dap);
+			sendSupportResponse(!!dap);
 			break;
 
 		case 'dap_version':
-			respond(dap ? dap.version : '');
+			sendSupportResponse(dap ? dap.version : '');
 			break;
 
 		case 'areas':
-			respond(dap || pfd ? listAreas() : []);
+			sendSupportResponse(dap || pfd ? listAreas() : []);
 			break;
 
 		case 'pfd_active':
-			respond(!!pfd);
+			sendSupportResponse(!!pfd);
 			break;
 
 		case 'pfd_version':
-			respond(pfd ? pfd.version : '');
+			sendSupportResponse(pfd ? pfd.version : '');
 			break;
 
 		case 'origin':
-			respond(window.origin);
+			sendSupportResponse(window.origin);
 			break;
 	}
 });

@@ -30,8 +30,10 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "injected.js",
-        "global-search.js"
+        "inject-scan-page.js",
+        "inject-global-search.js",
+        "inject-debug-area.js",
+        "inject-debug-area.css"
       ],
       "matches": [
         "http://*/*",

@@ -1,14 +1,18 @@
 'use strict';
 
 function scanPage() {
+	chrome.runtime.onMessage.addListener(handleMessageFromContent);
+
 	chrome.runtime.sendMessage({cmd: 'scanPage'});
 }
 
-chrome.runtime.onMessage.addListener((request) => {
+function handleMessageFromContent(request) {
 	if ('updateOverview' === request.cmd) {
 		updateOverview(request.data);
+
+		return true;
 	}
-});
+}
 
 function updateOverview(data) {
 	const infoDap = getPluginStats('dap', data);
@@ -112,9 +116,10 @@ function showAreas(group, areas) {
 		const postId = isPro ? item.ids[0].replace(/^divi-area-/, '') : '';
 		const name = isPro ? item.ids[1].replace(/^divi-area-/, '') : item.ids[0];
 		const type = isPro ? `Divi Area ${item.type}` : 'On-Page Popup';
+		const classes = `divi-area source-${isPro ? 'pro' : 'free'}`;
 
 		const line = [];
-		line.push(`<div class="divi-area source-${isPro ? 'pro' : 'free'}">`);
+		line.push(`<div class="${classes}" data-area-key="${name}">`);
 		line.push(`<span class="area-type">${type}</span>`);
 		if (isPro) {
 			line.push(`<span class="area-id"><small>Post-ID</small> ${postId}</span>`);
@@ -134,7 +139,38 @@ function showAreas(group, areas) {
 		label = `${areas.length} Areas`;
 	}
 
-	showValue(group, 'areas', label, lines.join(''));
+	const listItem = showValue(group, 'areas', label, lines.join(''));
+
+	if (listItem) {
+		setTimeout(() => {
+			listItem
+				.querySelector('[data-area-key]')
+				.addEventListener('click', onAreaClick);
+		}, 50);
+	}
+}
+
+function onAreaClick(event) {
+	const key = this.getAttribute('data-area-key');
+
+	// Send notification to current website.
+	chrome.tabs.query({
+		active: true,
+		currentWindow: true
+	}, function (tabs) {
+		chrome.tabs.sendMessage(
+			tabs[0].id,
+			{
+				type: 'dm_support_debug',
+				cmd: 'debugArea',
+				areaId: key
+			}
+		);
+	});
+
+	window.close();
+	event.preventDefault();
+	return false;
 }
 
 function addList(id, label) {
@@ -149,6 +185,8 @@ function addList(id, label) {
 	}
 
 	list.querySelector('.list-label').innerHTML = label;
+
+	return list;
 }
 
 function showValue(listId, id, label, value, readMore) {
@@ -170,6 +208,8 @@ function showValue(listId, id, label, value, readMore) {
 	} else {
 		item.style.display = '';
 	}
+
+	return item;
 }
 
 function isOkay(listId, itemId, okay, message) {
