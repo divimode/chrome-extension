@@ -56,9 +56,9 @@ function showChoice(areaId) {
 	$menu = jQuery('<ul id="dm-support-debug-choice"></ul>');
 
 	$menu.append('<li class="title"></li>');
-	$menu.append('<li data-action="show">Show</li>');
-	$menu.append('<li data-action="hide">Hide</li>');
-	$menu.append('<li data-action="elements">Elements</li>');
+	$menu.append('<li data-action="show">Show Area</li>');
+	$menu.append('<li data-action="hide">Hide Area</li>');
+	$menu.append('<li data-action="elements">Explain Structure</li>');
 	$menu.append('<li data-action="screenshot">Screenshot</li>');
 	$menu.append('<li data-action="close">Close</li>');
 
@@ -158,9 +158,12 @@ function toggleElements() {
 }
 
 function showElements() {
-	const $body = jQuery('body');
 	area._elements = true;
 	area.addClass('dm-debug-elements');
+
+	if (!area.isVisible()) {
+		area.show();
+	}
 }
 
 function hideElements() {
