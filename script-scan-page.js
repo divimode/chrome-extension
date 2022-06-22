@@ -10,23 +10,25 @@ window.dmHandlers = window.dmHandlers || {};
 window.infos = window.infos || {};
 
 function initScanner() {
+	window.dmHandlers.callNum = 0;
+
 	window.addEventListener('message', handleScanMessage);
 
-	findLatestDiviVersion();
-	findLatestPfdVersion();
-	findLatestDapVersion();
+	callFunction(findLatestDiviVersion);
+	callFunction(findLatestPfdVersion);
+	callFunction(findLatestDapVersion);
 
-	sendSupportRequest('origin');
-	sendSupportRequest('theme');
-	sendSupportRequest('jquery');
+	callFunction(sendSupportRequest, 'origin');
+	callFunction(sendSupportRequest, 'theme');
+	callFunction(sendSupportRequest, 'jquery');
 
-	sendSupportRequest('dap_active');
-	sendSupportRequest('pfd_active');
+	callFunction(sendSupportRequest, 'dap_active');
+	callFunction(sendSupportRequest, 'pfd_active');
 
-	sendSupportRequest('dap_version');
-	sendSupportRequest('pfd_version');
+	callFunction(sendSupportRequest, 'dap_version');
+	callFunction(sendSupportRequest, 'pfd_version');
 
-	sendSupportRequest('areas');
+	callFunction(sendSupportRequest, 'areas');
 
 	// Clean up when script is loaded a second time.
 	const myId = +(new Date);
@@ -53,6 +55,15 @@ function handleScanMessage({data}) {
 	}
 
 	refreshOverview();
+}
+
+function callFunction(fn, ...args) {
+	setTimeout(
+		() => fn.apply(this, args),
+		window.dmHandlers.callNum
+	);
+
+	window.dmHandlers.callNum++;
 }
 
 function sendSupportRequest(command) {
@@ -163,4 +174,4 @@ function findLatestDiviVersion() {
 		});
 }
 
-setTimeout(initScanner, 100);
+setTimeout(initScanner, 250);

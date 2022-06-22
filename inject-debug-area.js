@@ -12,6 +12,8 @@ let debugMenuActive = false;
 let prefix = '[Divimode Debug]';
 
 function init() {
+	let failures = 0;
+
 	$menu = null;
 	area = null;
 	isMinimized = false;
@@ -20,7 +22,21 @@ function init() {
 
 	window.addEventListener('message', handleDebugMessage);
 
-	DiviArea.addAction('show_area', selectArea);
+	const initHook = () => {
+		if (!window.DiviArea) {
+			failures++;
+
+			if (failures < 10) {
+				setTimeout(initHook, 250);
+			}
+
+			return;
+		}
+
+		DiviArea.addAction('show_area', selectArea);
+	};
+
+	setTimeout(initHook);
 }
 
 function handleDebugMessage({data}) {

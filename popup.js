@@ -112,9 +112,12 @@ function showAreas(group, areas) {
 	const lines = [];
 
 	areas.forEach(item => {
-		const isPro = -1 !== item.ids[0].indexOf('divi-area-');
-		const postId = isPro ? item.ids[0].replace(/^divi-area-/, '') : '';
-		const name = isPro ? item.ids[1].replace(/^divi-area-/, '') : item.ids[0];
+		const id0 = item.ids[0];
+		const id1 = item.ids[1];
+
+		const isPro = -1 !== id0.indexOf('divi-area-');
+		const postId = isPro ? id0.replace(/^divi-area-/, '') : '';
+		const name = isPro && id1 ? id1.replace(/^divi-area-/, '') : id0;
 		const type = isPro ? `Divi Area ${item.type}` : 'On-Page Popup';
 		const classes = `divi-area source-${isPro ? 'pro' : 'free'}`;
 
@@ -242,13 +245,21 @@ function getPluginStats(prefix, data) {
 			return;
 		}
 
-		stats[key.substr(prefix.length + 1)] = data[key];
+		const attr = key.substr(prefix.length + 1);
+		stats[attr] = data[key];
 	});
 
 	return stats;
 }
 
 function compareVersion(version1, version2) {
+	if (!version1) {
+		return -1;
+	}
+	if (!version2) {
+		return 1;
+	}
+
 	const parts1 = version1.split('.');
 	const parts2 = version2.split('.');
 
